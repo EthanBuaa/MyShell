@@ -1,51 +1,55 @@
 #ifndef SHELL_H_
 #define SHELL_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-
 /* Constants */
 #define MAX_LINE (256)
-#define BUF_SIZE (4096)
 #define MAX_ARGS (1024)
-#define MAX_HISTORY_ENTRIES (1000)
 
 /* type declearation */
 struct command {
-    int argc;
-    char *name;
-    char *argv[MAX_ARGS];
-    int fds[2];
+    int     argc;
+    int     fds[2];
+    char    *argv[MAX_ARGS];
 };
 
-struct commandPiped {
-    int cmd_count;
-    struct comand *cmds[];
+static inline struct command *init_cmd() {
+    return (struct command *) 
+        calloc(sizeof(struct command) + MAX_ARGS * sizeof(int), 1) ;
+}
+
+struct command_piped {
+    struct command  **cmds;
+    int             cmd_count;
 };
 
-struct history {
-    int cur;
-    int entry_count;
-    char **entries;
-};
-
-typedef struct command Command;
-typedef struct commandPiped CommandPiped;
-typedef struct history History;
+/* alloctae memory for one input command*/
+static inline struct command_piped *init_cmd_piped(int cmd_cnt) {
+    return (struct command_piped *) 
+        calloc(sizeof(struct command_piped) + cmd_cnt * sizeof(struct command *), 1);
+}
 
 /* Functions declaration */
-char *readLine(void );
+extern const char *current_directory();
 
-void _clearHistory(History * );
+static struct command *parse_cmd(char *);
+extern struct command_piped *parse_cmd_piped(char *);
 
-Commands *parseCommandsPiped(char *);
-Commands *_parseCommand(char *);
-void flushCommands(Commands *);
+static int exec_cmd(const struct command *, int (*pipes)[2]);
+static inline close_pipes(int (*pipes)[2], int pipe_cnt) {
+    int i;
+    for (i = 0; i < pipe_cnt; i++) {
+        close(pipes[i][0]);
+        close(pipes[i][1]);
+    }
+}
 
-        
+extern int exec_cmd_piped(struct command_piped *);
+
+extern void flush_cmd_piped(struct command  *);
+
+/** function called when shell is terminated 
+ *  free all memory requested in shell module
+*/
+extern void _free_all_in_shell();        
 
 #endif

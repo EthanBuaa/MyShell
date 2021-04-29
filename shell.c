@@ -1,85 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#include <errno.h>
+
+#include "built_in.h"
 #include "shell.h"
 
-char *readLine(void) {
-    char ch; 
-    int i = 0;
-    int buf_size = BUF_SIZE;
-    char *line = (char *)malloc(buf_size * sizeof(char));
+const char *current_directory() {
+    /* throw error to the caller */
+    char *buf = (char *) malloc(BUFSIZ);
+    if (!buf) { return NULL; }
+    const char *cwd = getcwd(buf, BUFSIZ);
+    if (!cwd) { return NULL; }
 
-    /* throw error to main() */
-    if (!line) { return NULL; }
-
-    while ((ch = getchar()) != '\n') {
-        if (ch == EOF) { 
-            /* User enter ctrl + d */
-            free(line);
-            return NULL;
-        }
-        if (i >= buf_size) {
-            buf_size = buf_size * 2;
-            line = (char *)realloc(line, buf_size * sizeof(char));
-        }
-
-        /** Error occurs in realloction 
-         * handle error right away
-        */
-        if (!line) { 
-            fprintf(stderr, 'error: realloc failed\n');
-            exitWithCleanup(EXIT_FAILURE);
-        } 
-
-        line[i++] = ch;
-    } 
-
-    line[i] = '\0';
-    return line;
+    return cwd;
 }
+struct command *parse_cmd(char *input) {
+    int arg_count = 0;
+    char *token = NULL;
+    char **save_ptr = NULL;
 
-void _clearHistory(History *htry) {
-    int i;
-    for (i = 0; i < htry->entry_count; i++) {
-        free(htry->entries[i]);
-    }
-    free(htry);
-
-    return ;
-}
-
-Command *_parseCommands(char *input) {
-    int argv_count = 0;
-    char *token;
-    char **save_ptr;
-
-    Command *cmd = calloc(1, sizeof(Command) + sizeof(char) * MAX_ARGS);
+    struct command *cmd = init_cmd();
 
     if (!cmd) {
-        fprintf(stderr, "error: memory alloc error\n");
+        fprintf(stderr, "error: memory allocation error\n");
         exit(EXIT_FAILURE);
     }
 
-    token = strtok_r(input, " ",save_ptr);
-    while (token != NULL && argv_count < MAX_ARGS) {
-        cmd->argv[argv_count++] = token;
+    token = strtok_r(input, " ", save_ptr);
+    while (token != NULL && arg_count < MAX_ARGS) {
+        cmd->argv[arg_count++] = token;
         token = strtok_r(NULL, " ", save_ptr);
     }
-    cmd->name = cmd->argv[0];
-    cmd->argc = argv_count;
+    cmd->argc = arg_count;
 
     return cmd;
 }
 
-CommandPiped *parseCommandsPiped(char *line) {
-    int cmd_count = 0;
+struct command_piped *parse_cmd_piped(char *line) {
+    int cmd_cnt = 0;
     char *ptr = line;
     char *token = NULL;
     char *save_ptr = NULL;
 
     while (*ptr) {
-        if (*ptr == '|') { cmd_count++; }
+        if (*ptr == '|') { cmd_cnt++; }
         ptr++;
     }
 
-    CommandPiped *cmd_p = calloc(1, sizeof(CommandPiped) + cmd_count * sizeof(Command));
+    struct command_piped *cmd_p = 
+        init_cmd_piped(cmd_cnt);
 
     if (!cmd_p) {
         fprintf(stderr, "error: memory alloc error\n");
@@ -88,22 +63,25 @@ CommandPiped *parseCommandsPiped(char *line) {
 
     int i = 0;
     token = strtok_r(line, "|", save_ptr);
-    while (token && i < cmd_count) {
-        cmd_p->cmds[i++] = _parseCommand(token);
+    while (token && i < cmd_cnt) {
+        cmd_p->cmds[i++] = parse_command(token);
         token = strtok_r(NULL, "|", save_ptr);
     }
 
-    cmd_p->cmd_count = cmd_count;
+    cmd_p->cmd_count = cmd_cnt;
 
     return cmd_p;
 }
 
-int exec_command(CommandPiped *cmd_p, Command *cmd, int (*pipes)[2]) {
-    if (checkBuiltIn()) {
-        return handleBuiltIn(cmd_p, cmd);
+/**
+ * FIXME: memory control over child process  
+ */
+int exec_cmd(const struct command *cmd, int (*pipes)[2]) {
+    if (is_built_in(cmd->argv[0])) {
+        return handle_built_in(&cmd->argc, cmd->argv);
     }
 
-    int pid;
+    pid_t pid;
     if ((pid = fork()) == 0) {
         int input_fd = cmd->fds[0];
 		int output_fd = cmd->fds[1];
@@ -121,7 +99,7 @@ int exec_command(CommandPiped *cmd_p, Command *cmd, int (*pipes)[2]) {
 		}
 
 		/* execute the command */
-		execv(cmd->name, cmd->argv);
+		execv(cmd->argv[0], cmd->argv);
 
 		/* execv returns only if an error occurs */
 		fprintf(stderr, "error: %s\n", strerror(errno));
@@ -143,65 +121,66 @@ int exec_command(CommandPiped *cmd_p, Command *cmd, int (*pipes)[2]) {
 		/* exit from child so that the parent can handle the scenario*/
 		_exit(EXIT_FAILURE);
     } else if (pid == 1) {
-
+        /* in parent */
     } else {
         fprintf(stderr, "error: fork error\n");
 		return 0;
     }
 }
 
-int exec_commands(CommandPiped *cmd_p) {
+/**
+ * TODO: I/O redirect 
+*/
+int exec_cmd_piped(struct command_piped *cmd_p) {
     int exec_ret;
 
+    cmd_p->cmds[0]->fds[STDIN_FILENO] = STDIN_FILENO;
+    cmd_p->cmds[cmd_p->cmd_count - 1]->fds[STDOUT_FILENO] = STDOUT_FILENO;    
+
     if (cmd_p->cmd_count == 1) {
-        cmd_p->cmds[0]->fds[STDIN_FILENO] = STDIN_FILENO;
-        cmd_p->cmds[0]->fds[STDOUT_FILENO] = STDOUT_FILENO;
-        exec_ret = exec_command(cmd_p, cmd_p->cmds[0], NULL);
+        exec_ret = exec_cmd(cmd_p->cmds[0], NULL);
         wait(NULL);
     } else {
         /* excute command with pipeline */
         int pipe_count = cmd_p->cmd_count - 1;
 
-        int i;
-        for (i = 0; i < cmd_p->cmd_count; i++) {
-            if (checkBuiltIn(cmd_p->cmds[i])) {
-                fprintf(stderr, "error: no builtins in pipe\n");
-				return 0;
-            }
-        }
-
         int (*pipes)[2] = calloc(1, pipe_count * sizeof(int[2]));
         if (!pipes) {
-            fprintf(stderr, "error: memory alloc error\n");
+            fprintf(stderr, "error: memory allocation error\n");
             return 0;
         }
 
+        int i;
         /* create pipes and set file descriptors on commands */
-		cmd_p->cmds[0]->fds[STDIN_FILENO] = STDIN_FILENO;
 		for (i = 1; i < cmd_p->cmd_count; i++) {
-			pipe(pipes[i-1]);
-			cmds->cmds[i-1]->fds[STDOUT_FILENO] = pipes[i-1][1];
-			cmds->cmds[i]->fds[STDIN_FILENO] = pipes[i-1][0];
-		}
-		cmd_p->cmds[pipe_count]->fds[STDOUT_FILENO] = STDOUT_FILENO;
+			pipe(pipes[i - 1]);
+            if (pipe < 0) {
+                fprintf(stderr, "error: pipe build error between cmd%d and cmd %d\n",
+                        i - 1, i);
+                return 0;
+            }
 
+			cmd_p->cmds[i - 1]->fds[STDOUT_FILENO] = pipes[i - 1][1];
+			cmd_p->cmds[i]->fds[STDIN_FILENO] = pipes[i - 1][0];
+		}
+		
 		/* execute the commands */
 		for (i = 0; i < cmd_p->cmd_count; i++)
-			exec_ret = exec_command(cmd_p, cmds->cmds[i], pipes);
+			exec_ret = exec_command(cmd_p, cmd_p->cmds[i], pipes);
 
 		close_pipes(pipes, pipe_count);
 
 		/* wait for children to finish */
-		for (i = 0; i < cmd_p->cmd_count; i++) { wait(NULL); }
+		for (i = 0; i < cmd_p->cmd_count; i++) 
+            wait(NULL);
 
 		free(pipes);
 	}
 
 	return exec_ret;
-    }
 }
 
-void flushCommands(CommandPiped *cmd_p) {
+void flush_cmd(struct command_piped *cmd_p) {
     int i;
     for (i = 0; i < cmd_p->cmd_count; i++) {
         free(cmd_p->cmds[i]);
