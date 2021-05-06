@@ -155,7 +155,7 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
 		for (i = 1; i < cmd_p->cmd_count; i++) {
 			pipe(pipes[i - 1]);
             if (pipe < 0) {
-                fprintf(stderr, "error: pipe build error between cmd%d and cmd %d\n",
+                fprintf(stderr, "error: pipe build error between cmd %d and cmd %d\n",
                         i - 1, i);
                 return 0;
             }
