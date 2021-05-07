@@ -170,7 +170,7 @@ int exec_cmd(const struct command *cmd) {
         }
 		
 		/* execute the command */
-		execv(cmd->argv[0], cmd->argv);
+		execvp(cmd->argv[0], cmd->argv);
         /* TODO: handle errors here */
 
         /** execv returns only if an error occurs 
