@@ -22,10 +22,10 @@ extern int is_built_in(char *argv0) {
 }
 
 extern int handle_built_in(int* argc, char **argv) {
-    if (strcmp(argv[0], 'cd') == 0) {
+    if (strncmp(argv[0], "cd", strlen("cd")) == 0) {
         return built_in_handler.cd(argc, argv);
     } 
-    if (strcmp(argv[0], 'exit') == 0) {
+    if (strncmp(argv[0], 'exit', strlen("exit")) == 0) {
         return built_in_handler.exit(argc, argv);
     }
 

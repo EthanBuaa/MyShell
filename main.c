@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -14,14 +15,13 @@ do {                                \
 } while (0)
 
 static char *line;
-static inline is_blank(char* str) {
+static inline bool is_blank(char* str) {
     char *p = str;
     while (*p) {
-        if (!isspace(*p)) {
-            return 0;
-        }
+        if (!isspace(*p)) 
+            return false;
     }
-    return 1;
+    return true;
 }
 
 static inline char *read_line(void) {
@@ -54,19 +54,16 @@ static inline char *read_line(void) {
     return line;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
     int exec_ret;
 
     for (;;) {
-        fputs("root:", stdout);
-        printCurrentDirectory(stdout);
-        fputs("# ", stdout);
-
+        print_prompt();
         line = read_line();
 
         if (!line) { 
             /* user entered ctrl+D, exit gracefully */
-			clear_and_exit(EXIT_FAILURE);
+			clear_and_exit(EXIT_SUCCESS);
         }
 
         if (strlen(line) > 0 && !isBlank(line)) {
@@ -75,18 +72,23 @@ int main(int argc, char **argv) {
             struct command_piped *cmd_p = 
                 parse_cmd_piped(line);
 
+            if (!cmd_p) {
+                fprintf(stdout, "invalid command.\n");
+                continue;
+            }
+
             /* TODO: add pipeline cmds & other commands to history */
 			
             free(line_copy); line_copy = NULL;
 
-            exec_ret = exec_cmd_piped(cmd_p);
+            int exec_ret = exec_cmd_piped(cmd_p);
             flush_cmd_piped(cmd_p);
         }
 
         free(line);
 
         /* handle exit singal */
-        if (exec_ret == -1) 
+        if (exec_ret < 0) 
             break;
     }
     
