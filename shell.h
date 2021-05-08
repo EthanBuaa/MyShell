@@ -24,7 +24,7 @@ struct command {
 
 static inline struct command *init_cmd() {
     return (struct command *) 
-        calloc(sizeof(struct command), 1) ;
+        calloc(sizeof(struct command), 1);
 }
 
 struct command_piped {

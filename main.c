@@ -9,8 +9,7 @@
 
 #define clear_and_exit(status)      \
 do {                                \
-    _clear_all_history();           \
-    _clear_all_shell();             \
+    _free_all_in_shell();          \
     exit(status);                   \
 } while (0)
 

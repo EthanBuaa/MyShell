@@ -256,3 +256,8 @@ void flush_cmd(struct command_piped *cmd_p) {
 
     return ;
 }
+
+void _free_all_in_shell() {
+    _free_all_in_built_in();
+    return ;
+}

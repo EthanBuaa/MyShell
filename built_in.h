@@ -2,10 +2,13 @@
 #define BUILT_IN_H_
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include <sys/types.h>
 #include <signal.h>
+
+#include "history.h"
 
 typedef int (*built_in_handler_t)(int *, char *[]);
 typedef built_in_handler_t built_in_handler_map_t[]; 
@@ -66,5 +69,10 @@ __help(int *argc, char *argv[]) {
 
 extern int get_built_in_index(char *);
 extern int handle_built_in(int ,int * , char *[]);
+
+/** function called when shell is terminated 
+ *  free all memory requested in shell module
+*/
+extern void _free_all_in_built_in();
 
 #endif
