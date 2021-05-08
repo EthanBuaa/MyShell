@@ -164,7 +164,7 @@ int exec_cmd(const struct command *cmd) {
         }
         if (ofd != STDOUT_FILENO) {
 			/* change input/output file descriptors if they aren't standard */
-            if (dup2(cmd->fds[1], STDOUT_FILENO) < 0) {
+            if (dup2(ofd, STDOUT_FILENO) < 0) {
                 fprintf(stderr, "error: dup2 failed.\n");
             }
             close(ofd);

@@ -56,11 +56,15 @@ int __history(int *argc, char *argv[]) {
     }
 
     /* output the wanted history entries */
-    int i = (historys->cur - offset + MAX_HISTORY_ENTRIES) % MAX_HISTORY_ENTRIES;
-    int entry_id = historys->entry_count - offset + 1;
-    do {
-        fprintf(stdout, "\t%d  %s\n", entry_id++, historys->entries[i]);
-    } while (i != historys->cur);
+    int i;
+    int idx_base = 
+        (historys->cur - offset + 1 + MAX_HISTORY_ENTRIES) % MAX_HISTORY_ENTRIES;
+    int no_base = historys->entry_count - offset;
+    for (i = 0; i < offset; i++) {
+        fprintf(stdout, "%4d  %s\n", 
+            no_base + i, historys->entries[(idx_base + i) % MAX_HISTORY_ENTRIES]);        
+    }
+
 
     return 0;
 }
