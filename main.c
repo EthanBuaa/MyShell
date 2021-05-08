@@ -9,7 +9,8 @@
 
 #define clear_and_exit(status)      \
 do {                                \
-    _free_all_in_shell();          \
+    _free_all_in_shell();           \
+    _free_all_in_history();         \
     exit(status);                   \
 } while (0)
 
@@ -66,8 +67,9 @@ int main(int argc, char *argv[]) {
         }
 
         if (strlen(line) > 0 && !isBlank(line)) {
-            char *line_copy = strndup(line, MAX_LINE);
-
+            /* TODO: missing error inspection here */
+            add_entry_to_history(line);
+            
             struct command_piped *cmd_p = 
                 parse_cmd_piped(line);
 
@@ -75,10 +77,6 @@ int main(int argc, char *argv[]) {
                 fprintf(stdout, "invalid command.\n");
                 continue;
             }
-
-            /* TODO: add pipeline cmds & other commands to history */
-			
-            free(line_copy); line_copy = NULL;
 
             int exec_ret = exec_cmd_piped(cmd_p);
             flush_cmd_piped(cmd_p);

@@ -24,7 +24,4 @@ extern int handle_built_in(int index, int* argc, char *argv[]) {
     return built_in_handler_map[index](argc, argv);
 }
 
-extern void free_all_in_built_in() {
-    _free_all_in_history();
-    return ;
-}
+extern void free_all_in_built_in() { return ; }

@@ -18,7 +18,8 @@ static const
         "cd",
         "exit",
         "kill",
-        "help"
+        "help",
+        "history"
 };
 
 static const 
@@ -26,7 +27,8 @@ static const
         &__cd,                                      
         &__exit,  
         &__kill,
-        &__help                                  
+        &__help,
+        &__history                                  
 };
 
 static inline int 
@@ -60,11 +62,6 @@ __help(int *argc, char *argv[]) {
 /** 
  * TODO: implement jobs 
  * with background module pre-implemented 
-*/
-
-/**
- * TODO: implement history
- * by include history lib
 */
 
 extern int get_built_in_index(char *);

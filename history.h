@@ -3,9 +3,6 @@
 
 #define MAX_HISTORY_ENTRIES (512)
 
-/**
- * TODO: add history commands
-*/
 struct history {
     int cur;
     int entry_count;
