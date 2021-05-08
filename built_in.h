@@ -64,15 +64,7 @@ __help(int *argc, char *argv[]) {
  * by include history lib
 */
 
-static inline int get_built_in_index(char *argv0) {
-    int cnt = sizeof(built_in_strs) / sizeof(built_in_strs[0]);
-    int i;
-    for (i = 0; i < cnt; i++) {
-        if (strncmp(argv0, built_in_strs[i], sizeof(built_in_strs[i])) == 0) 
-            return i;
-    }
-    return -1;
-}
-extern int handle_built_in(int* argc, char **argv);
+extern int get_built_in_index(char *);
+extern int handle_built_in(int ,int * , char *[]);
 
 #endif

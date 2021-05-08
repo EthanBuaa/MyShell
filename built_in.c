@@ -9,12 +9,18 @@
 
 #include "built_in.h"
 
-extern int handle_built_in(int* argc, char *argv[]) {
-    int idx; 
-    if ((idx = get_built_in_index(argv[0])) < 0) 
-        return 0;
+extern int get_built_in_index(char *str) {
+    int cnt = sizeof(built_in_strs) / sizeof(built_in_strs[0]);
     
-    int exec_ret = built_in_handler_map[idx](argc, argv);
-    return exec_ret;
+    int i;
+    for (i = 0; i < cnt; i++) {
+        if (strncmp(str, built_in_strs[i], sizeof(built_in_strs[i])) == 0) 
+            return i;
+    }
+    return -1;
+}
+
+extern int handle_built_in(int index, int* argc, char *argv[]) {
+    return built_in_handler_map[index](argc, argv);
 }
 

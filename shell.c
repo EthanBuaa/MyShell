@@ -133,8 +133,9 @@ struct command_piped *parse_cmd_piped(char *line) {
  * __throw__ return value of child process to caller 
  */
 int exec_cmd(const struct command *cmd) {
-    if (is_built_in(cmd->argv[0])) {
-        return handle_built_in(&cmd->argc, cmd->argv);
+    int idx;
+    if ((idx = get_built_in_index(cmd->argv[0])) > 0) {
+        return handle_built_in(idx, &cmd->argc, cmd->argv);
     }
 
     int ifd, ofd;

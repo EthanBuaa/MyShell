@@ -35,15 +35,16 @@ struct command_piped {
 /* alloctae memory for one input command*/
 static inline struct command_piped *init_cmd_piped(int cmd_cnt) {
     return (struct command_piped *) 
-        calloc(sizeof(struct command_piped) + cmd_cnt * sizeof(struct command *), 1);
+        calloc(sizeof(struct command_piped) + 
+            cmd_cnt * sizeof(struct command *), 1);
 }
 
 /* Functions declaration */
-static inline const char *current_directory __THROW () {
+static inline const char *current_directory() {
     char *buf, *cwd;
-    if (!(buf = malloc(BUFSIZ))) 
+    if ((buf = malloc(BUFSIZ)) == 0) 
         return NULL;
-    if (!(cwd = getcwd(buf, BUFSIZ))) 
+    if ((cwd = getcwd(buf, BUFSIZ)) == 0) 
         return NULL;
     return cwd;
 }
