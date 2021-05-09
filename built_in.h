@@ -64,6 +64,13 @@ static const
  * with background module pre-implemented 
 */
 
+/**
+ * if a built-in command is parent-process-relied 
+ * it has to be excuted in parent process 
+ * (parent process = mysh in this case)  
+*/
+extern bool parent_process_relied(int );
+
 extern int get_built_in_index(const char *);
 extern int handle_built_in(const int , const int * , const char *const[]);
 

@@ -145,7 +145,8 @@ struct command_piped *parse_cmd_piped(char *line) {
  */
 int exec_cmd(const struct command *cmd) {
     int idx;
-    if ((idx = get_built_in_index(cmd->argv[0])) >= 0) {
+    if ((idx = get_built_in_index(cmd->argv[0])) >= 0 &&
+         parent_process_relied(idx)) {
         return handle_built_in(idx, &cmd->argc, cmd->argv);
     }
 
@@ -187,6 +188,17 @@ int exec_cmd(const struct command *cmd) {
         }
 		
 		/* execute the command */
+        int idx;
+        if ((idx = get_built_in_index(cmd->argv[0])) >= 0) {
+            /**
+             * handle built-in commands in child process
+             * such as: 
+             * cmds with IO (history, help),
+             * or cmds not manipulate ancestor process(the original one: mysh)        
+            */
+            int status = handle_built_in(idx, &cmd->argc, cmd->argv) < 0;
+            _exit(status);
+        }
 		execvp(cmd->argv[0], cmd->argv);
         /* TODO: handle errors here */
 
