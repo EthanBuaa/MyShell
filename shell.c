@@ -54,12 +54,16 @@ struct command *parse_cmd(char *input) {
 
     int i, j;
     bool err;
-    for (i = 0, j = 0; i < cmd->argc; i++) {
+    for (i = 0, j = 0; i < cmd->argc; ) {
         token = cmd->argv[i];
         err = false;
         if (!token)
             break;
         
+        /**
+         * NOTE: pattern recognization Algorithm here will choose
+         * the last IO redirection as the final option
+        */
         switch (*token) {
         case '<':
             if (token[1] == '\0')
@@ -110,6 +114,7 @@ struct command_piped *parse_cmd_piped(char *line) {
         if (*ptr == '|') { cmd_cnt++; }
         ptr++;
     }
+    cmd_cnt++;
 
     struct command_piped *cmd_p = 
         init_cmd_piped(cmd_cnt);
@@ -122,7 +127,7 @@ struct command_piped *parse_cmd_piped(char *line) {
     int i = 0;
     token = strtok_r(line, "|", &save_ptr);
     while (token && i < cmd_cnt) {
-        if (!(cmd_p->cmds[i++] = parse_cmd(token))) {
+        if ((cmd_p->cmds[i++] = parse_cmd(token)) == NULL) {
             fprintf(stderr, "failed in parsing %s.\n", token);
             return NULL;
         }
@@ -264,7 +269,8 @@ void flush_cmd_piped(struct command_piped *cmd_p) {
     for (i = 0; i < cmd_p->cmd_count; i++) {
         free(cmd_p->cmds[i]);
     }
-    free(cmd_p);
+    free(cmd_p->cmds);
+    free(cmd_p); 
 
     return ;
 }

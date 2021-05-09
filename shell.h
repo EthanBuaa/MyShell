@@ -34,9 +34,10 @@ struct command_piped {
 
 /* alloctae memory for one input command*/
 static inline struct command_piped *init_cmd_piped(int cmd_cnt) {
-    return (struct command_piped *) 
-        calloc(sizeof(struct command_piped) + 
-            cmd_cnt * sizeof(struct command *), 1);
+    struct command_piped * _cmd_piped = 
+        calloc(sizeof(struct command_piped), 1);
+    _cmd_piped->cmds = malloc(sizeof(struct command*) * cmd_cnt);
+    return _cmd_piped;
 }
 
 /* Functions declaration */
@@ -61,7 +62,8 @@ static inline void close_pipes(int (*pipes)[2], int pipe_cnt) {
 }
 
 static inline bool is_background(struct command *cmd) {
-    return (bool) strncmp(cmd->argv[cmd->argc - 1], "&", 1) == 0;
+    return (cmd->argc > 0)? 
+        (bool) strncmp(cmd->argv[cmd->argc - 1], "&", 1) == 0 : false;
 }
 
 extern int exec_cmd_piped(struct command_piped *);
