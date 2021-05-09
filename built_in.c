@@ -9,7 +9,7 @@
 
 #include "built_in.h"
 
-extern int get_built_in_index(char *str) {
+extern int get_built_in_index(const char *str) {
     int cnt = sizeof(built_in_strs) / sizeof(built_in_strs[0]);
     
     int i;
@@ -20,8 +20,11 @@ extern int get_built_in_index(char *str) {
     return -1;
 }
 
-extern int handle_built_in(int index, int* argc, char *argv[]) {
+extern int 
+    handle_built_in(const int index, const int* argc, 
+                    const char *const argv[]) {
     return built_in_handler_map[index](argc, argv);
 }
 
-extern void free_all_in_built_in() { return ; }
+/* preserved for later implementaion */
+extern void _free_all_in_built_in() { return ; }

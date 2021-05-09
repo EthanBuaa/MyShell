@@ -50,10 +50,8 @@ static inline const char *current_directory() {
 }
 extern void print_prompt();
 
-static struct command *parse_cmd(char *);
 extern struct command_piped *parse_cmd_piped(char *);
 
-static int exec_cmd(const struct command *);
 static inline void close_pipes(int (*pipes)[2], int pipe_cnt) {
     int i;
     for (i = 0; i < pipe_cnt; i++) {
@@ -68,7 +66,7 @@ static inline bool is_background(struct command *cmd) {
 
 extern int exec_cmd_piped(struct command_piped *);
 
-extern void flush_cmd_piped(struct command  *);
+extern void flush_cmd_piped(struct command_piped  *);
 
 /** function called when shell is terminated 
  *  free all memory requested in shell module

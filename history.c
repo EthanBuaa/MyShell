@@ -31,7 +31,7 @@ int add_entry_to_history(const char *__line) {
     return 0;
 }
 
-int __history(int *argc, char *argv[]) {
+int __history(const int *argc, const char *const argv[]) {
     int offset = historys->entry_count;
     if (*argc > 1) {
         /* case: history -c */

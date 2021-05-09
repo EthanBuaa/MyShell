@@ -33,7 +33,7 @@ static inline void clear_entries_in_history() {
 
 
 extern int add_entry_to_history(const char * );
-extern int __history(int * , char *[] );
+extern int __history(const int * , const char *const[] );
 
 /** function called when shell is terminated 
  *  free all memory requested in history module

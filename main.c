@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include <sys/types.h>
 
@@ -66,7 +67,7 @@ int main(int argc, char *argv[]) {
 			clear_and_exit(EXIT_SUCCESS);
         }
 
-        if (strlen(line) > 0 && !isBlank(line)) {
+        if (strlen(line) > 0 && !is_blank(line)) {
             /* TODO: missing error inspection here */
             add_entry_to_history(line);
             
@@ -78,7 +79,7 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-            int exec_ret = exec_cmd_piped(cmd_p);
+            exec_ret = exec_cmd_piped(cmd_p);
             flush_cmd_piped(cmd_p);
         }
 

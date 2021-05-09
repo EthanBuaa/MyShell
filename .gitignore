@@ -1,4 +1,10 @@
+# ide config dir 
 .vscode/
-test.c
+
+# dbg files  
 test
+test.c
 log.txt
+
+*.o
+mysh

@@ -13,15 +13,20 @@
 #include "built_in.h"
 #include "shell.h"
 
+/* declare static functions */
+static struct command *parse_cmd(char *);
+static int exec_cmd(const struct command *);
+
+
 void print_prompt() {
     fputs("user:", stdout);
-    char *cwd = current_directory();
+    const char *cwd = current_directory();
     if (!cwd) {
         fprintf(stderr, "error: failed to get current working path.\n");
         exit(EXIT_FAILURE);
     }
     fputs(cwd, stdout);
-    free(cwd);
+    free((void *)cwd);
     fputs("$ ", stdout);
 
     return ;
@@ -247,7 +252,14 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
 	return exec_ret;
 }
 
-void flush_cmd(struct command_piped *cmd_p) {
+/**
+ * This function free the memory of struct command_piped recursivly
+ * Note: you might take it wrong for there is no free() 
+ * for the tokenized line. 
+ * In fact, free(line) will be called right 
+ * after flush_cmd_piped in main.c (line 86)
+ */
+void flush_cmd_piped(struct command_piped *cmd_p) {
     int i;
     for (i = 0; i < cmd_p->cmd_count; i++) {
         free(cmd_p->cmds[i]);
