@@ -16,7 +16,7 @@ typedef built_in_handler_t built_in_handler_map_t[];
 static inline int 
 __cd(const int *argc, const char *const argv[]) {
     int ret;
-    if ((ret = chdir(argv[1]))< 0) {
+    if ((ret = chdir(argv[1])) < 0) {
         fprintf(stderr, "error: unable tp change to %s\n", argv[1]);
     }
     return ret;

@@ -12,7 +12,7 @@ struct history {
 };
 
 static struct history *historys;
-static inline struct history *init_historys() {
+static inline struct history *_init_historys() {
     struct history* _historys = malloc(sizeof(struct history));
     _historys->cur = -1;
     return _historys;
@@ -31,7 +31,7 @@ static inline void clear_entries_in_history() {
     historys->entry_count = 0;
 }
 
-
+extern void init_historys();
 extern int add_entry_to_history(const char * );
 extern int __history(const int * , const char *const[] );
 

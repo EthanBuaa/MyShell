@@ -10,15 +10,6 @@
 #include "history.h"
 
 int add_entry_to_history(const char *__line) {
-    /* into following branch at first call */
-    if (!historys) {
-        historys = init_historys();
-        if (!historys) {
-            fprintf(stderr, "error: memory allocation failed.\n");
-            return -1;
-        }
-    }
-
     const char *line = strdup(__line);
     if (!line) 
         return -1;
@@ -67,6 +58,17 @@ int __history(const int *argc, const char *const argv[]) {
 
 
     return 0;
+}
+
+void init_historys() {
+    /* into following branch at first call */
+    if (!historys) {
+        historys = _init_historys();
+        if (!historys) {
+            fprintf(stderr, "error: memory allocation failed.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 void _free_all_in_history() {

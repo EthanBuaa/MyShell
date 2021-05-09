@@ -15,6 +15,13 @@ do {                                \
     exit(status);                   \
 } while (0)
 
+
+#define init_extern_vars()          \
+do {                                \
+    init_historys();                \
+} while (0)                         \
+
+;
 static char *line;
 static inline bool is_blank(char* str) {
     char *p = str;
@@ -58,12 +65,16 @@ static inline char *read_line(void) {
 int main(int argc, char *argv[]) {
     int exec_ret;
 
+    init_extern_vars();
     for (;;) {
         print_prompt();
         line = read_line();
 
         if (!line) { 
             /* user entered ctrl+D, exit gracefully */
+            fprintf(stdout, "\n");
+            
+            free(line);
 			clear_and_exit(EXIT_SUCCESS);
         }
 
@@ -84,6 +95,16 @@ int main(int argc, char *argv[]) {
         }
 
         free(line);
+
+        /**
+         * TODO: handle less fatal error here
+         * just process with continue 
+         * the shell wouldn't quit 
+        */
+       if (exec_ret > 0) {
+           /* process error code */
+           continue;
+       }
 
         /* handle exit singal */
         if (exec_ret < 0) 
