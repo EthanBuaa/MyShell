@@ -54,7 +54,7 @@ struct command *parse_cmd(char *input) {
 
     int i, j;
     bool err;
-    for (i = 0, j = 0; i < cmd->argc; ) {
+    for (i = 0, j = 0; i < cmd->argc; i++) {
         token = cmd->argv[i];
         err = false;
         if (!token)
@@ -67,9 +67,9 @@ struct command *parse_cmd(char *input) {
         switch (*token) {
         case '<':
             if (token[1] == '\0')
-                token = cmd->argv[i++];
+                token = cmd->argv[++i];
             else 
-                ++token;
+                ++token; 
             cmd->ifile = token;
 
             if (!cmd->ifile || cmd->ifile[0] == '\0') 
@@ -77,16 +77,16 @@ struct command *parse_cmd(char *input) {
             break;
         case '>':
             if (token[1] == '\0') 
-                token = cmd->argv[i++];
+                token = cmd->argv[++i];
             else 
-                ++token;
+                ++token; 
             cmd->ofile = token;
 
             if (!cmd->ofile || cmd->ofile[0] == '\0') 
                 err = 1;
             break;
         default:
-            cmd->argv[j++] = cmd->argv[i++];
+            cmd->argv[j++] = cmd->argv[i];
             break;
         }
 
@@ -96,6 +96,7 @@ struct command *parse_cmd(char *input) {
         }
     }
     cmd->argc = j;
+    cmd->argv[cmd->argc] = NULL;    /* terminate argv[] with NULL pointer */
 
     cmd->bg = is_background(cmd);
     if (cmd->bg) 
@@ -144,7 +145,7 @@ struct command_piped *parse_cmd_piped(char *line) {
  */
 int exec_cmd(const struct command *cmd) {
     int idx;
-    if ((idx = get_built_in_index(cmd->argv[0])) > 0) {
+    if ((idx = get_built_in_index(cmd->argv[0])) >= 0) {
         return handle_built_in(idx, &cmd->argc, cmd->argv);
     }
 
@@ -166,8 +167,13 @@ int exec_cmd(const struct command *cmd) {
             close(ifd);
         }
 
+        /**
+         * mode = 0644 represents the access:
+         * read/write for owner
+         * read-only for group and others
+        */
         ofd = (cmd->ofile)?
-                open(cmd->ofile, O_WRONLY | O_CREAT | O_TRUNC) : cmd->fds[1];
+                open(cmd->ofile, O_WRONLY | O_CREAT | O_TRUNC, 0644) : cmd->fds[1];
         if (ofd < 0) {
             fprintf(stderr, "error: failed in open %s\n.", cmd->ofile);
             _exit(EXIT_FAILURE);    
@@ -191,7 +197,6 @@ int exec_cmd(const struct command *cmd) {
     } 
     /* parent process continue here */
     int status;
-    close(cmd->fds[0]);
     if (cmd->bg) {
         /* TODO: record in list of background jobs */
         /* background process, dont't wait for child to finish*/
@@ -242,8 +247,10 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
 		
 		/* execute the commands */
 		for (i = 0; i < cmd_p->cmd_count; i++) {
-			exec_ret = exec_cmd(cmd_p->cmds[i]);
-            /* TODO: handle exec_ret here */
+			if ((exec_ret = exec_cmd(cmd_p->cmds[i])) < 0) {
+                /* TODO: handle exec_ret here */
+                break;
+            }
         }
 		close_pipes(pipes, pipe_count);
 
