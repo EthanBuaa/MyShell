@@ -269,7 +269,7 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
  * Note: you might take it wrong for there is no free() 
  * for the tokenized line. 
  * In fact, free(line) will be called right 
- * after flush_cmd_piped in main.c (line 86)
+ * after flush_cmd_piped in main.c 
  */
 void flush_cmd_piped(struct command_piped *cmd_p) {
     int i;
