@@ -50,7 +50,7 @@ int __history(const int *argc, const char *const argv[]) {
     int i;
     int idx_base = 
         (historys->cur - offset + 1 + MAX_HISTORY_ENTRIES) % MAX_HISTORY_ENTRIES;
-    int no_base = historys->entry_count - offset;
+    int no_base = historys->entry_count - offset + 1;
     for (i = 0; i < offset; i++) {
         fprintf(stdout, "%4d  %s\n", 
             no_base + i, historys->entries[(idx_base + i) % MAX_HISTORY_ENTRIES]);        
