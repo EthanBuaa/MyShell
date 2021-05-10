@@ -10,8 +10,9 @@
 #include "built_in.h"
 
 extern bool parent_process_relied(int index) {
-    /** if index in built_in_handler_map < 2 
-     *  the built-in command is either cd, exit or history 
+    /** 
+     * if index in built_in_handler_map < 2 
+     * the built-in command is either cd, exit or history 
     */
     return index < 3;
 }

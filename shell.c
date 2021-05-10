@@ -10,6 +10,8 @@
 
 #include <errno.h>
 
+#include <assert.h>
+
 #include "built_in.h"
 #include "shell.h"
 
@@ -147,12 +149,17 @@ int exec_cmd(const struct command *cmd) {
     int idx;
     if ((idx = get_built_in_index(cmd->argv[0])) >= 0 &&
          parent_process_relied(idx)) {
+        /** 
+         * built-in cmds excuted here can't support redirection
+         * include: history, cd, exit
+         * TODO: make history support IO redirection
+         */
         return handle_built_in(idx, &cmd->argc, cmd->argv);
     }
 
     int ifd, ofd;
-    pid_t ch_pid = fork();
-    if (ch_pid == 0) {
+    pid_t pid = fork();
+    if (pid == 0) {
 		ifd = (cmd->ifile)? 
                 open(cmd->ifile, O_RDONLY) : cmd->fds[0];
         if (ifd < 0) {
@@ -188,21 +195,21 @@ int exec_cmd(const struct command *cmd) {
         }
 		
 		/* execute the command */
-        int idx;
+        int idx;    /* FIXME: duplicated variable */
         if ((idx = get_built_in_index(cmd->argv[0])) >= 0) {
             /**
              * handle built-in commands in child process
              * such as: 
-             * cmds with IO (history, help),
-             * or cmds not manipulate ancestor process(the original one: mysh)        
+             * cmds with IO (help),
+             * or cmds not manipulate ancestor process(process name: mysh)        
             */
             int status = handle_built_in(idx, &cmd->argc, cmd->argv) < 0;
             _exit(status);
         }
 		execvp(cmd->argv[0], cmd->argv);
-        /* TODO: handle errors here */
-
-        /** execv returns only if an error occurs 
+        /** 
+         * TODO: handle errors here 
+         * execv returns only if an error occurs 
 		 * exit from child so that the parent can handle the scenario 
          */
         _exit(EXIT_FAILURE);
@@ -211,12 +218,13 @@ int exec_cmd(const struct command *cmd) {
     int status;
     if (cmd->bg) {
         /* TODO: record in list of background jobs */
-        /* background process, dont't wait for child to finish*/
+        /* background process, dont't wait for child to finish */
+        assert(0);
     } else {
         /** otherwise block until child process is finished 
          * catch error in child process 
          */
-        waitpid(ch_pid, &status, 0);
+        waitpid(pid, &status, 0);
         /* throw errors to caller */
         return WIFEXITED(status)? 
             WEXITSTATUS(status) : -WTERMSIG(status);
@@ -241,7 +249,7 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
         int (*pipes)[2] = calloc(1, pipe_count * sizeof(int[2]));
         if (!pipes) {
             fprintf(stderr, "error: memory allocation error\n");
-            return 0;
+            return -1;
         }
         
         int i;
@@ -250,7 +258,7 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
 			if (pipe(pipes[i - 1]) < 0) {
                 fprintf(stderr, "error: pipe build error between cmd %d and cmd %d\n",
                         i - 1, i);
-                return 0;
+                return -1;
             }
 
 			cmd_p->cmds[i - 1]->fds[STDOUT_FILENO] = pipes[i - 1][1];
