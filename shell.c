@@ -195,8 +195,7 @@ int exec_cmd(const struct command *cmd) {
         }
 		
 		/* execute the command */
-        int idx;    /* FIXME: duplicated variable */
-        if ((idx = get_built_in_index(cmd->argv[0])) >= 0) {
+        if (idx >= 0) {
             /**
              * handle built-in commands in child process
              * such as: 
