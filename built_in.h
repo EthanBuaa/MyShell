@@ -64,7 +64,7 @@ static const
 };
 
 /** 
- * TODO: implement jobs 
+ * TODO: implement jobs as well as background
  * with background module pre-implemented 
 */
 

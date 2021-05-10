@@ -152,7 +152,7 @@ int exec_cmd(const struct command *cmd) {
         /** 
          * built-in cmds excuted here can't support redirection
          * include: history, cd, exit
-         * TODO: make history support IO redirection
+         * FIXME: make history support IO redirection
          */
         return handle_built_in(idx, &cmd->argc, cmd->argv);
     }
