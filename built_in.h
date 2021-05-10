@@ -41,22 +41,26 @@ __help(const int *argc, const char *const argv[]) {
     return 0;
 }
 
+/**
+ * Note & Cautious: 
+ * the sequence of element in following containers 
+*/
 static const 
     char* const built_in_strs[] = {
         "cd",
+        "history",
         "exit",
         "kill",
-        "help",
-        "history"
+        "help"
 };
 
 static const 
     built_in_handler_map_t built_in_handler_map = {    
-        &__cd,                                      
+        &__cd,  
+        &__history,                                    
         &__exit,  
         &__kill,
-        &__help,
-        &__history                                  
+        &__help                               
 };
 
 /** 

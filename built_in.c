@@ -11,9 +11,9 @@
 
 extern bool parent_process_relied(int index) {
     /** if index in built_in_handler_map < 2 
-     *  the built-in command is either cd or exit
+     *  the built-in command is either cd, exit or history 
     */
-    return index < 2;
+    return index < 3;
 }
 
 extern int get_built_in_index(const char *str) {
