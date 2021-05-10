@@ -15,6 +15,7 @@ static struct history *historys;
 static inline struct history *_init_historys() {
     struct history* _historys = malloc(sizeof(struct history));
     _historys->cur = -1;
+    _historys->entry_count = 0;
     return _historys;
 }
 
