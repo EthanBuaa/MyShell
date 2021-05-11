@@ -199,10 +199,12 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
         dup2(ofd, STDOUT_FILENO);
         close(ofd);
         
-        if ((idx = get_built_in_index(cmd_p->cmds[i]->argv[0])) >= 0 && 
-             handle_built_in(idx, &cmd_p->cmds[i]->argc, 
-                            (const char* const*) cmd_p->cmds[i]->argv) < 0) {
-            return -1;
+        if ((idx = get_built_in_index(cmd_p->cmds[i]->argv[0])) >= 0) {
+            exec_ret = handle_built_in(idx, &cmd_p->cmds[i]->argc, 
+                            (const char* const*) cmd_p->cmds[i]->argv);
+            if (exec_ret < 0)
+                return -1;
+            continue;
         }
 
         pid = fork();
