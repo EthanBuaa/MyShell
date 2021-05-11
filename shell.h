@@ -52,14 +52,6 @@ extern void print_prompt();
 
 extern struct command_piped *parse_cmd_piped(char *);
 
-static inline void close_pipes(int (*pipes)[2], int pipe_cnt) {
-    int i;
-    for (i = 0; i < pipe_cnt; i++) {
-        close(pipes[i][0]);
-        close(pipes[i][1]);
-    }
-}
-
 static inline bool is_background(struct command *cmd) {
     return (cmd->argc > 0)? 
         (bool) strncmp(cmd->argv[cmd->argc - 1], "&", 1) == 0 : false;

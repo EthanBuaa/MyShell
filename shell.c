@@ -17,7 +17,6 @@
 
 /* declare static functions */
 static struct command *parse_cmd(char *);
-static int exec_cmd(const struct command *);
 
 
 void print_prompt() {
@@ -139,98 +138,6 @@ struct command_piped *parse_cmd_piped(char *line) {
     cmd_p->cmd_count = cmd_cnt;
 
     return cmd_p;
-}
-
-/**
- * this function handle IO exception and dup2 error locally
- * __throw__ return value of child process to caller 
- */
-int exec_cmd(const struct command *cmd) {
-    // int idx;
-    // if ((idx = get_built_in_index(cmd->argv[0])) >= 0 &&
-    //      parent_process_relied(idx)) {
-    //     /** 
-    //      * built-in cmds excuted here can't support redirection
-    //      * include: history, cd, exit
-    //      * FIXME: make history support IO redirection
-    //      */
-    //     return handle_built_in(idx, &cmd->argc, cmd->argv);
-    // }
-
-    // int ifd, ofd;
-    // pid_t pid = fork();
-    // if (pid == 0) {
-	// 	ifd = (cmd->ifile)? 
-    //             open(cmd->ifile, O_RDONLY) : cmd->fds[0];
-    //     if (ifd < 0) {
-    //         fprintf(stderr, "error: failed in open %s\n.", cmd->ifile);
-    //         _exit(EXIT_FAILURE);
-    //     }
-    //     if (ifd != STDIN_FILENO) {
-    //         /* change input file descriptors if they aren't standard */
-	// 		if (dup2(ifd, STDIN_FILENO) < 0) {
-    //             fprintf(stderr, "error: dup2 failed.\n");
-    //             _exit(EXIT_FAILURE);
-    //         }
-    //         close(ifd);
-    //     }
-
-    //     /**
-    //      * mode = 0644 represents the access:
-    //      * read/write for owner
-    //      * read-only for group and others
-    //     */
-    //     ofd = (cmd->ofile)?
-    //             open(cmd->ofile, O_WRONLY | O_CREAT | O_TRUNC, 0644) : cmd->fds[1];
-    //     if (ofd < 0) {
-    //         fprintf(stderr, "error: failed in open %s\n.", cmd->ofile);
-    //         _exit(EXIT_FAILURE);    
-    //     }
-    //     if (ofd != STDOUT_FILENO) {
-	// 		/* change input/output file descriptors if they aren't standard */
-    //         if (dup2(ofd, STDOUT_FILENO) < 0) {
-    //             fprintf(stderr, "error: dup2 failed.\n");
-    //         }
-    //         close(ofd);
-    //     }
-		
-	// 	/* execute the command */
-    //     if (idx >= 0) {
-    //         /**
-    //          * handle built-in commands in child process
-    //          * such as: 
-    //          * cmds with IO (help),
-    //          * or cmds not manipulate ancestor process(process name: mysh)        
-    //         */
-    //         int status = handle_built_in(idx, &cmd->argc, cmd->argv) < 0;
-    //         _exit(status);
-    //     }
-	// 	execvp(cmd->argv[0], cmd->argv);
-    //     /** 
-    //      * TODO: handle errors here 
-    //      * execv returns only if an error occurs 
-	// 	 * exit from child so that the parent can handle the scenario 
-    //      */
-    //     fprintf(stderr, "error: failed in execvp().\n");
-    //     _exit(EXIT_FAILURE);
-    // } 
-    // /* parent process continue here */
-    // int status;
-    // if (cmd->bg) {
-    //     /* TODO: record in list of background jobs */
-    //     /* background process, dont't wait for child to finish */
-    //     assert(0);
-    // } else {
-    //     /** otherwise block until child process is finished 
-    //      * catch error in child process 
-    //      */
-    //     waitpid(pid, &status, 0);
-    //     /* throw errors to caller */
-    //     return WIFEXITED(status)? 
-    //         WEXITSTATUS(status) : -WTERMSIG(status);    
-    // }
-
-    return 0;
 }
 
 int exec_cmd_piped(struct command_piped *cmd_p) {
