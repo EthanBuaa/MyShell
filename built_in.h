@@ -35,8 +35,13 @@ __kill(const int *argc, const char *const argv[]) {
 static inline int 
 __help(const int *argc, const char *const argv[]) {
     /* TODO: implement help MSG */
-    fprintf(stdout, 
-            "This is help message.\n"
+    fprintf(stdout,             
+" \
+*************** Help ***************\n \
+    history: history [-c] [n]         \n \
+    kill: <pid> <sig>                 \n \
+************************************\n \
+"
     );
     return 0;
 }
