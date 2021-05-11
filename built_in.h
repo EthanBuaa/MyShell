@@ -34,7 +34,6 @@ __kill(const int *argc, const char *const argv[]) {
 
 static inline int 
 __help(const int *argc, const char *const argv[]) {
-    /* TODO: implement help MSG */
     fprintf(stdout,             
 " \
 *************** Help ***************\n \
@@ -70,8 +69,7 @@ static const
 };
 
 /** 
- * TODO: implement jobs as well as background
- * with background module pre-implemented 
+ * TODO: implement jobs 
 */
 
 

@@ -97,11 +97,12 @@ struct command *parse_cmd(char *input) {
         }
     }
     cmd->argc = j;
-    cmd->argv[cmd->argc] = NULL;    /* terminate argv[] with NULL pointer */
-
+    
     cmd->bg = is_background(cmd);
     if (cmd->bg) 
         --(cmd->argc);
+
+    cmd->argv[cmd->argc] = NULL;    /* terminate argv[] with NULL pointer */
 
     return cmd;
 }
@@ -210,11 +211,6 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
         pid = fork();
         if (pid == 0) {
             execvp(cmd_p->cmds[i]->argv[0], cmd_p->cmds[i]->argv);
-            /** 
-             * TODO: handle errors here 
-             * execv returns only if an error occurs 
-             * exit from child so that the parent can handle the scenario 
-             */
             fprintf(stderr, "error: failed in excute %s.\n", cmd_p->cmds[i]->argv[0]);
             _exit(EXIT_FAILURE);
         }
