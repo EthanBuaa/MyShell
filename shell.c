@@ -142,7 +142,7 @@ struct command_piped *parse_cmd_piped(char *line) {
 
 int exec_cmd_piped(struct command_piped *cmd_p) {
     if (cmd_p->cmd_count < 1) 
-        return 1;
+        return -1;
 
     int exec_ret = 0;
 
@@ -163,7 +163,7 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
         if (ifd < 0) {
             fprintf(stderr, "failed to open %s.\n", 
                     cmd_p->cmds[i]->ifile);
-            exec_ret = 1;
+            exec_ret = -1;
             break;        
         }  
         dup2(ifd, STDIN_FILENO);
@@ -173,7 +173,7 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
             if (pipe(fdpipe) < 0) {
                 fprintf(stderr, "error: pipe build error between %s and cmd %s\n",
                         cmd_p->cmds[i - 1]->argv[0], cmd_p->cmds[i]->argv[1]);
-                exec_ret = -1; 
+                exec_ret = EXIT_FAILURE;  
                 break;
             }
             ofd = fdpipe[1];
@@ -190,9 +190,9 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
                 open(cmd_p->cmds[i]->ofile, O_WRONLY | O_CREAT | O_TRUNC, 0644) : 
                 ofd;
         if (ofd < 0) {
-            fprintf(stderr, "failed to open %s.\n", 
+            fprintf(stderr, "error: failed to open %s.\n", 
                     cmd_p->cmds[i]->ofile);
-            exec_ret = 1;
+            exec_ret = -1;
             break;        
         }
 
@@ -213,6 +213,7 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
              * execv returns only if an error occurs 
              * exit from child so that the parent can handle the scenario 
              */
+            fprintf(stderr, "error: failed in excute %s.\n", cmd_p->cmds[i]->argv[0]);
             _exit(EXIT_FAILURE);
         }
     }

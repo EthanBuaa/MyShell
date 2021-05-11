@@ -17,14 +17,14 @@ static inline int
 __cd(const int *argc, const char *const argv[]) {
     int ret;
     if ((ret = chdir(argv[1])) < 0) {
-        fprintf(stderr, "error: unable tp change to %s\n", argv[1]);
+        fprintf(stderr, "error: unable to change to %s\n", argv[1]);
     }
     return ret;
 }
 
 static inline int 
 __exit(const int *argc, const char *const argv[]) {
-    return -1;
+    return EXIT_FAILURE;
 }
 
 static inline int 

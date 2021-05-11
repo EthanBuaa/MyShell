@@ -39,7 +39,8 @@ int __history(const int *argc, const char *const argv[]) {
         /* 10 represents decimal (base = 10) */
         offset_l = strtol(argv[1], &end_ptr, 10);
         if (end_ptr == argv[1]) {
-            fprintf(stderr, "error: failed in convert to number.\n");
+            fprintf(stderr, "error: failed in convert %s to number.\n",
+                    argv[1]);
             return -1;
         }
         offset = (offset_l > offset)? 
