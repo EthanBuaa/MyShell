@@ -79,8 +79,10 @@ int main(int argc, char *argv[]) {
         }
 
         if (strlen(line) > 0 && !is_blank(line)) {
-            /* TODO: missing error inspection here */
-            add_entry_to_history(line);
+            if (add_entry_to_history(line) < 0) {
+                fprintf(stderr, "error: fail to allocate memory for history.\n");
+                clear_and_exit(EXIT_FAILURE);
+            }
             
             struct command_piped *cmd_p = 
                 parse_cmd_piped(line);
@@ -96,19 +98,19 @@ int main(int argc, char *argv[]) {
 
         free(line);
 
-        /**
-         * TODO: handle less fatal error here
-         * just process with continue 
-         * the shell wouldn't quit 
-        */
-       if (exec_ret > 0) {
-           /* process error code */
-           continue;
-       }
-
         /* handle exit singal */
-        if (exec_ret < 0) 
-            break;
+        if (exec_ret > 0) 
+           break;
+       
+        /* process error code */
+        if (exec_ret < 0) {
+            /**
+            * TODO: handle less fatal error here
+            * just process with continue 
+            * the shell wouldn't quit 
+            */  
+            continue;
+        }
     }
     
     /* exit with cleanup */

@@ -17,7 +17,6 @@ struct command {
     int     argc;
     char    *argv[MAX_ARGS + 1];    /* make sure argv[] ends with NULL pointer */
     bool    bg;
-    int     fds[2];
     char    *ifile;
     char    *ofile;
 };
@@ -52,14 +51,6 @@ static inline const char *current_directory() {
 extern void print_prompt();
 
 extern struct command_piped *parse_cmd_piped(char *);
-
-static inline void close_pipes(int (*pipes)[2], int pipe_cnt) {
-    int i;
-    for (i = 0; i < pipe_cnt; i++) {
-        close(pipes[i][0]);
-        close(pipes[i][1]);
-    }
-}
 
 static inline bool is_background(struct command *cmd) {
     return (cmd->argc > 0)? 

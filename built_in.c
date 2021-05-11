@@ -9,14 +9,6 @@
 
 #include "built_in.h"
 
-extern bool parent_process_relied(int index) {
-    /** 
-     * if index in built_in_handler_map < 2 
-     * the built-in command is either cd, exit or history 
-    */
-    return index < 3;
-}
-
 extern int get_built_in_index(const char *str) {
     int cnt = sizeof(built_in_strs) / sizeof(built_in_strs[0]);
     

@@ -17,14 +17,14 @@ static inline int
 __cd(const int *argc, const char *const argv[]) {
     int ret;
     if ((ret = chdir(argv[1])) < 0) {
-        fprintf(stderr, "error: unable tp change to %s\n", argv[1]);
+        fprintf(stderr, "error: unable to change to %s\n", argv[1]);
     }
     return ret;
 }
 
 static inline int 
 __exit(const int *argc, const char *const argv[]) {
-    return -1;
+    return EXIT_FAILURE;
 }
 
 static inline int 
@@ -34,9 +34,13 @@ __kill(const int *argc, const char *const argv[]) {
 
 static inline int 
 __help(const int *argc, const char *const argv[]) {
-    /* TODO: implement help MSG */
-    fprintf(stdout, 
-            "This is help message.\n"
+    fprintf(stdout,             
+" \
+*************** Help ***************\n \
+    history: history [-c] [n]         \n \
+    kill: <pid> <sig>                 \n \
+************************************\n \
+"
     );
     return 0;
 }
@@ -44,6 +48,7 @@ __help(const int *argc, const char *const argv[]) {
 /**
  * Note & Cautious: 
  * the sequence of element in following containers 
+ * TODO: implement the map with hash map data structure 
 */
 static const 
     char* const built_in_strs[] = {
@@ -65,15 +70,8 @@ static const
 
 /** 
  * TODO: implement jobs 
- * with background module pre-implemented 
 */
 
-/**
- * if a built-in command is parent-process-relied 
- * it has to be excuted in parent process 
- * (parent process = mysh in this case)  
-*/
-extern bool parent_process_relied(int );
 
 extern int get_built_in_index(const char *);
 extern int handle_built_in(const int , const int * , const char *const[]);
