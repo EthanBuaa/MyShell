@@ -62,7 +62,6 @@ int __history(const int *argc, const char *const argv[]) {
 }
 
 void init_historys() {
-    /* into following branch at first call */
     if (!historys) {
         historys = _init_historys();
         if (!historys) {

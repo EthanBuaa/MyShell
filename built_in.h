@@ -44,6 +44,7 @@ __help(const int *argc, const char *const argv[]) {
 /**
  * Note & Cautious: 
  * the sequence of element in following containers 
+ * TODO: implement the map with hash map data structure 
 */
 static const 
     char* const built_in_strs[] = {
