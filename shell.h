@@ -17,7 +17,6 @@ struct command {
     int     argc;
     char    *argv[MAX_ARGS + 1];    /* make sure argv[] ends with NULL pointer */
     bool    bg;
-    int     fds[2];
     char    *ifile;
     char    *ofile;
 };

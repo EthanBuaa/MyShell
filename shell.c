@@ -21,7 +21,7 @@ static int exec_cmd(const struct command *);
 
 
 void print_prompt() {
-    fputs("user:", stdout);
+    fputs("admin:", stdout);
     const char *cwd = current_directory();
     if (!cwd) {
         fprintf(stderr, "error: failed to get current working path.\n");
@@ -146,139 +146,178 @@ struct command_piped *parse_cmd_piped(char *line) {
  * __throw__ return value of child process to caller 
  */
 int exec_cmd(const struct command *cmd) {
-    int idx;
-    if ((idx = get_built_in_index(cmd->argv[0])) >= 0 &&
-         parent_process_relied(idx)) {
-        /** 
-         * built-in cmds excuted here can't support redirection
-         * include: history, cd, exit
-         * FIXME: make history support IO redirection
-         */
-        return handle_built_in(idx, &cmd->argc, cmd->argv);
-    }
+    // int idx;
+    // if ((idx = get_built_in_index(cmd->argv[0])) >= 0 &&
+    //      parent_process_relied(idx)) {
+    //     /** 
+    //      * built-in cmds excuted here can't support redirection
+    //      * include: history, cd, exit
+    //      * FIXME: make history support IO redirection
+    //      */
+    //     return handle_built_in(idx, &cmd->argc, cmd->argv);
+    // }
 
-    int ifd, ofd;
-    pid_t pid = fork();
-    if (pid == 0) {
-		ifd = (cmd->ifile)? 
-                open(cmd->ifile, O_RDONLY) : cmd->fds[0];
-        if (ifd < 0) {
-            fprintf(stderr, "error: failed in open %s\n.", cmd->ifile);
-            _exit(EXIT_FAILURE);
-        }
-        if (ifd != STDIN_FILENO) {
-            /* change input file descriptors if they aren't standard */
-			if (dup2(ifd, STDIN_FILENO) < 0) {
-                fprintf(stderr, "error: dup2 failed.\n");
-                _exit(EXIT_FAILURE);
-            }
-            close(ifd);
-        }
+    // int ifd, ofd;
+    // pid_t pid = fork();
+    // if (pid == 0) {
+	// 	ifd = (cmd->ifile)? 
+    //             open(cmd->ifile, O_RDONLY) : cmd->fds[0];
+    //     if (ifd < 0) {
+    //         fprintf(stderr, "error: failed in open %s\n.", cmd->ifile);
+    //         _exit(EXIT_FAILURE);
+    //     }
+    //     if (ifd != STDIN_FILENO) {
+    //         /* change input file descriptors if they aren't standard */
+	// 		if (dup2(ifd, STDIN_FILENO) < 0) {
+    //             fprintf(stderr, "error: dup2 failed.\n");
+    //             _exit(EXIT_FAILURE);
+    //         }
+    //         close(ifd);
+    //     }
 
-        /**
-         * mode = 0644 represents the access:
-         * read/write for owner
-         * read-only for group and others
-        */
-        ofd = (cmd->ofile)?
-                open(cmd->ofile, O_WRONLY | O_CREAT | O_TRUNC, 0644) : cmd->fds[1];
-        if (ofd < 0) {
-            fprintf(stderr, "error: failed in open %s\n.", cmd->ofile);
-            _exit(EXIT_FAILURE);    
-        }
-        if (ofd != STDOUT_FILENO) {
-			/* change input/output file descriptors if they aren't standard */
-            if (dup2(ofd, STDOUT_FILENO) < 0) {
-                fprintf(stderr, "error: dup2 failed.\n");
-            }
-            close(ofd);
-        }
+    //     /**
+    //      * mode = 0644 represents the access:
+    //      * read/write for owner
+    //      * read-only for group and others
+    //     */
+    //     ofd = (cmd->ofile)?
+    //             open(cmd->ofile, O_WRONLY | O_CREAT | O_TRUNC, 0644) : cmd->fds[1];
+    //     if (ofd < 0) {
+    //         fprintf(stderr, "error: failed in open %s\n.", cmd->ofile);
+    //         _exit(EXIT_FAILURE);    
+    //     }
+    //     if (ofd != STDOUT_FILENO) {
+	// 		/* change input/output file descriptors if they aren't standard */
+    //         if (dup2(ofd, STDOUT_FILENO) < 0) {
+    //             fprintf(stderr, "error: dup2 failed.\n");
+    //         }
+    //         close(ofd);
+    //     }
 		
-		/* execute the command */
-        if (idx >= 0) {
-            /**
-             * handle built-in commands in child process
-             * such as: 
-             * cmds with IO (help),
-             * or cmds not manipulate ancestor process(process name: mysh)        
-            */
-            int status = handle_built_in(idx, &cmd->argc, cmd->argv) < 0;
-            _exit(status);
-        }
-		execvp(cmd->argv[0], cmd->argv);
-        /** 
-         * TODO: handle errors here 
-         * execv returns only if an error occurs 
-		 * exit from child so that the parent can handle the scenario 
-         */
-        _exit(EXIT_FAILURE);
-    } 
-    /* parent process continue here */
-    int status;
-    if (cmd->bg) {
-        /* TODO: record in list of background jobs */
-        /* background process, dont't wait for child to finish */
-        assert(0);
-    } else {
-        /** otherwise block until child process is finished 
-         * catch error in child process 
-         */
-        waitpid(pid, &status, 0);
-        /* throw errors to caller */
-        return WIFEXITED(status)? 
-            WEXITSTATUS(status) : -WTERMSIG(status);
-    }
+	// 	/* execute the command */
+    //     if (idx >= 0) {
+    //         /**
+    //          * handle built-in commands in child process
+    //          * such as: 
+    //          * cmds with IO (help),
+    //          * or cmds not manipulate ancestor process(process name: mysh)        
+    //         */
+    //         int status = handle_built_in(idx, &cmd->argc, cmd->argv) < 0;
+    //         _exit(status);
+    //     }
+	// 	execvp(cmd->argv[0], cmd->argv);
+    //     /** 
+    //      * TODO: handle errors here 
+    //      * execv returns only if an error occurs 
+	// 	 * exit from child so that the parent can handle the scenario 
+    //      */
+    //     fprintf(stderr, "error: failed in execvp().\n");
+    //     _exit(EXIT_FAILURE);
+    // } 
+    // /* parent process continue here */
+    // int status;
+    // if (cmd->bg) {
+    //     /* TODO: record in list of background jobs */
+    //     /* background process, dont't wait for child to finish */
+    //     assert(0);
+    // } else {
+    //     /** otherwise block until child process is finished 
+    //      * catch error in child process 
+    //      */
+    //     waitpid(pid, &status, 0);
+    //     /* throw errors to caller */
+    //     return WIFEXITED(status)? 
+    //         WEXITSTATUS(status) : -WTERMSIG(status);    
+    // }
 
     return 0;
 }
 
 int exec_cmd_piped(struct command_piped *cmd_p) {
-    int exec_ret;
+    if (cmd_p->cmd_count < 1) 
+        return 1;
 
-    cmd_p->cmds[0]->fds[STDIN_FILENO] = STDIN_FILENO;
-    cmd_p->cmds[cmd_p->cmd_count - 1]->fds[STDOUT_FILENO] = STDOUT_FILENO;    
+    int exec_ret = 0;
 
-    if (cmd_p->cmd_count == 1) {
-        exec_ret = exec_cmd(cmd_p->cmds[0]);
-        // wait(NULL);
-    } else {
-        /* excute command with pipeline */
-        int pipe_count = cmd_p->cmd_count - 1;
+    int itemp = dup(STDIN_FILENO);
+    int otemp = dup(STDOUT_FILENO);
 
-        int (*pipes)[2] = calloc(1, pipe_count * sizeof(int[2]));
-        if (!pipes) {
-            fprintf(stderr, "error: memory allocation error\n");
-            return -1;
-        }
-        
-        int i;
-        /* create pipes and set file descriptors on commands */
-		for (i = 1; i < cmd_p->cmd_count; i++) {
-			if (pipe(pipes[i - 1]) < 0) {
-                fprintf(stderr, "error: pipe build error between cmd %d and cmd %d\n",
-                        i - 1, i);
-                return -1;
-            }
+    int i;
+    int idx;
+    int ofd;
+    int ifd = dup(itemp);
+    
+    int fdpipe[2];
+    pid_t pid;
+    
+    for (i = 0; i < cmd_p->cmd_count; i++) {
+        ifd = (cmd_p->cmds[i]->ifile)?
+            open(cmd_p->cmds[i]->ifile, O_RDONLY) : ifd;  
+        if (ifd < 0) {
+            fprintf(stderr, "failed to open %s.\n", 
+                    cmd_p->cmds[i]->ifile);
+            exec_ret = 1;
+            break;        
+        }  
+        dup2(ifd, STDIN_FILENO);
+        close(ifd);
 
-			cmd_p->cmds[i - 1]->fds[STDOUT_FILENO] = pipes[i - 1][1];
-			cmd_p->cmds[i]->fds[STDIN_FILENO] = pipes[i - 1][0];
-		}
-		
-		/* execute the commands */
-		for (i = 0; i < cmd_p->cmd_count; i++) {
-			if ((exec_ret = exec_cmd(cmd_p->cmds[i])) < 0) {
-                /* TODO: handle exec_ret here */
+        if (i < cmd_p->cmd_count - 1) {
+            if (pipe(fdpipe) < 0) {
+                fprintf(stderr, "error: pipe build error between %s and cmd %s\n",
+                        cmd_p->cmds[i - 1]->argv[0], cmd_p->cmds[i]->argv[1]);
+                exec_ret = -1; 
                 break;
             }
+            ofd = fdpipe[1];
+            ifd = fdpipe[0];
+            if (cmd_p->cmds[i]->ofile) {
+                /* write dummy msg to pipe to avoid block of child process*/
+                write(ofd, NULL, 0);    
+                close(ofd);
+            }
+        } else {
+            ofd = dup(otemp);
         }
-		close_pipes(pipes, pipe_count);
+        ofd = (cmd_p->cmds[i]->ofile)?
+                open(cmd_p->cmds[i]->ofile, O_WRONLY | O_CREAT | O_TRUNC, 0644) : 
+                ofd;
+        if (ofd < 0) {
+            fprintf(stderr, "failed to open %s.\n", 
+                    cmd_p->cmds[i]->ofile);
+            exec_ret = 1;
+            break;        
+        }
 
-		/* wait for children to finish */
-		// for (i = 0; i < cmd_p->cmd_count; i++) 
-        //     wait(NULL);
+        dup2(ofd, STDOUT_FILENO);
+        close(ofd);
+        
+        if ((idx = get_built_in_index(cmd_p->cmds[i]->argv[0])) >= 0 && 
+             handle_built_in(idx, &cmd_p->cmds[i]->argc, 
+                            (const char* const*) cmd_p->cmds[i]->argv) < 0) {
+            return -1;
+        }
 
-		free(pipes);
-	}
+        pid = fork();
+        if (pid == 0) {
+            execvp(cmd_p->cmds[i]->argv[0], cmd_p->cmds[i]->argv);
+            /** 
+             * TODO: handle errors here 
+             * execv returns only if an error occurs 
+             * exit from child so that the parent can handle the scenario 
+             */
+            _exit(EXIT_FAILURE);
+        }
+    }
+    
+    dup2(itemp, STDIN_FILENO);
+    dup2(otemp, STDOUT_FILENO);
+    close(itemp);
+    close(otemp);
+	
+    if (!cmd_p->cmds[cmd_p->cmd_count - 1]->bg) {
+        waitpid(pid, NULL, 0);
+    }
 
 	return exec_ret;
 }
