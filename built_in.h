@@ -37,8 +37,8 @@ __help(const int *argc, const char *const argv[]) {
     fprintf(stdout,             
 " \
 *************** Help ***************\n \
-    history: history [-c] [n]         \n \
-    kill: <pid> <sig>                 \n \
+    history: history [-c] [n]       \n \
+    kill: <pid> <sig>               \n \
 ************************************\n \
 "
     );
