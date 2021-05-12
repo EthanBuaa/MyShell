@@ -34,11 +34,13 @@ static inline void clear_entries_in_history() {
 
 extern void init_historys();
 extern int add_entry_to_history(const char * );
+extern char *get_entry_from_history(int );
 extern int __history(const int * , const char *const[] );
 
 /** function called when shell is terminated 
  *  free all memory requested in history module
 */
 extern void _free_all_in_history();   
+extern char *solve_line_with_history(char *); 
 
 #endif

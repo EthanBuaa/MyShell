@@ -83,12 +83,12 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "error: fail to allocate memory for history.\n");
                 clear_and_exit(EXIT_FAILURE);
             }
-            
+        
             struct command_piped *cmd_p = 
                 parse_cmd_piped(line);
 
             if (!cmd_p) {
-                fprintf(stdout, "invalid command.\n");
+                fprintf(stdout, "mysh: invalid command.\n");
                 continue;
             }
 
@@ -105,10 +105,10 @@ int main(int argc, char *argv[]) {
         /* process error code */
         if (exec_ret < 0) {
             /**
-            * TODO: handle less fatal error here
-            * just process with continue 
-            * the shell wouldn't quit 
-            */  
+             * TODO: handle less fatal error here
+             * just process with continue 
+             * the shell wouldn't quit 
+             */  
             continue;
         }
     }

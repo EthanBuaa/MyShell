@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <sys/types.h>
 #include <signal.h>
@@ -26,7 +27,7 @@ int __history(const int *argc, const char *const argv[]) {
     int offset = historys->entry_count;
     if (*argc > 1) {
         /* case: history -c */
-        if (strncmp(argv[1], "-c", 2) == 0) {
+        if (strcmp(argv[1], "-c") == 0) {
             /* strlen("-c") = 2 */
             clear_entries_in_history();
             return 0;
@@ -59,6 +60,25 @@ int __history(const int *argc, const char *const argv[]) {
 
 
     return 0;
+}
+
+char *get_entry_from_history(int index) {
+    ++index; 
+    while (index < 0) 
+        index += historys->entry_count;
+    
+    char *entry = strdup(
+        historys->entries[(historys->cur + index) % MAX_HISTORY_ENTRIES]);
+    
+    return entry;
+}
+
+/**
+ * TODO: function to solve ![n] 
+ * then replace pattern with history[n] 
+*/
+extern char *solve_line_with_history(char *line) {
+    return NULL;
 }
 
 void init_historys() {
