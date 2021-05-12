@@ -25,7 +25,7 @@ do {                                \
 static char *line;
 static inline bool is_blank(char* str) {
     char *p = str;
-    while (*p) {
+    while (*p++) {
         if (!isspace(*p)) 
             return false;
     }
