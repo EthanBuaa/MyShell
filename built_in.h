@@ -49,7 +49,7 @@ __help(const int *argc, const char *const argv[]) {
 " \
 *************** Help ***************\n \
     history: history [-c] [n]       \n \
-    kill: <pid> <sig>               \n \
+    kill: kill <pid>                \n \
 ************************************\n \
 "
     );
