@@ -203,8 +203,11 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
         if ((idx = get_built_in_index(cmd_p->cmds[i]->argv[0])) >= 0) {
             exec_ret = handle_built_in(idx, &cmd_p->cmds[i]->argc, 
                             (const char* const*) cmd_p->cmds[i]->argv);
-            if (exec_ret < 0)
-                return -1;
+            if (exec_ret < 0) {
+                fprintf(stderr, "error: failed in excute %s.\n", 
+                        cmd_p->cmds[i]->argv[0]);
+                break;
+            }
             continue;
         }
 
