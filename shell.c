@@ -206,6 +206,9 @@ int exec_cmd_piped(struct command_piped *cmd_p) {
             if (exec_ret < 0) {
                 fprintf(stderr, "error: failed in excute %s.\n", 
                         cmd_p->cmds[i]->argv[0]);
+            }
+            if (exec_ret > 0) {
+                /* handle exit return value */
                 break;
             }
             continue;
