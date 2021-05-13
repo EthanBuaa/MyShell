@@ -29,7 +29,18 @@ __exit(const int *argc, const char *const argv[]) {
 
 static inline int 
 __kill(const int *argc, const char *const argv[]) {
-    return kill(atoi(argv[1]), SIGKILL);
+    char *end_ptr;
+    long pid_l;
+
+    /* 10 represents decimal (base = 10) */
+    pid_l = strtol(argv[1], &end_ptr, 10);
+    if (end_ptr == argv[1]) {
+        fprintf(stderr, "error: failed in convert %s to number.\n",
+                argv[1]);
+        return -1;
+    }
+    
+    return kill((pid_t)pid_l, SIGKILL);
 }
 
 static inline int 
